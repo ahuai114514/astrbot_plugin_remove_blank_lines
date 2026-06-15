@@ -1,0 +1,8 @@
+{
+  "max_consecutive_newlines": {
+    "description": "允许保留的连续换行数。默认 1 表示把空行删除；设为 2 表示最多保留一个空行。",
+    "type": "int",
+    "hint": "建议保持默认值 1",
+    "default": 1
+  }
+}
