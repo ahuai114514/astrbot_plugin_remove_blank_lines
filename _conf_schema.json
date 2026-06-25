@@ -1,4 +1,16 @@
 {
+  "apply_to_llm_output_globally": {
+    "description": "是否全局处理所有输出",
+    "type": "bool",
+    "hint": "开启后对所有输出生效；关闭后仅对日常聊天这类 LLM 原始输出生效",
+    "default": true
+  },
+  "plugin_blacklist": {
+    "description": "插件黑名单",
+    "type": "list",
+    "hint": "命中名单内的插件输出不生效，一行一个插件ID，例如 astrbot_plugin_kfc_thursday",
+    "default": []
+  },
   "max_consecutive_newlines": {
     "description": "最多保留连续换行数",
     "type": "int",

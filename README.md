@@ -31,6 +31,16 @@ AstrBot 插件：在机器人消息发送前自动删除回复文本中的空行
 - `2`：最多保留一个空行。
 - `0`：删除所有换行，不推荐，可能让多行文本挤成一行。
 
+`apply_to_llm_output_globally` 控制是否默认对 LLM 原始输出全局生效：
+
+- `true`：对任何最终输出统一处理。
+- `false`：仅对常规聊天这类 LLM 原始输出处理，插件产出的结果默认不处理。
+
+`plugin_blacklist` 用于指定插件黑名单：
+
+- 无论全局模式是否开启，命中黑名单的插件输出都不会处理。
+- 填 AstrBot 插件 ID，一行一个，例如 `astrbot_plugin_kfc_thursday`。
+
 ## 安装
 
 将本目录放入 AstrBot 的插件目录后，在 AstrBot 管理面板启用插件即可。
