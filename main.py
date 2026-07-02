@@ -12,7 +12,7 @@ from .sanitizer import DEFAULT_MAX_CONSECUTIVE_NEWLINES, collapse_blank_lines
 PLUGIN_ID = "astrbot_plugin_remove_blank_lines"
 
 
-@register(PLUGIN_ID, "Codex", "自动删除机器人回复中的空行", "1.0.0")
+@register(PLUGIN_ID, "Codex", "自动删除机器人回复中的空行", "1.1.0")
 class RemoveBlankLinesPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig | None = None):
         super().__init__(context)

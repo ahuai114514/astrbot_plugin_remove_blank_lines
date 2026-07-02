@@ -2,7 +2,7 @@ name: astrbot_plugin_remove_blank_lines
 display_name: 删除回复空行
 short_desc: 自动压缩机器人回复中的连续换行。
 desc: 在消息发送前检测 Plain 文本段，将连续空行压缩掉，避免回复中出现两段话之间多空一行。
-version: v1.0.0
+version: 1.1.0
 author: Codex
-repo: ""
+repo: https://github.com/konley/astrbot_plugin_remove_blank_lines
 astrbot_version: ">=4.16,<5"
