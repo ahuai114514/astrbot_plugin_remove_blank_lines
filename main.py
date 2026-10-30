@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
+import astrbot.api.message_components as Comp
 from astrbot.api import AstrBotConfig
 from astrbot.api.event import AstrMessageEvent, filter
-import astrbot.api.message_components as Comp
 from astrbot.api.star import Context, Star, register
 
 from .sanitizer import DEFAULT_MAX_CONSECUTIVE_NEWLINES, collapse_blank_lines
@@ -12,7 +12,7 @@ from .sanitizer import DEFAULT_MAX_CONSECUTIVE_NEWLINES, collapse_blank_lines
 PLUGIN_ID = "astrbot_plugin_remove_blank_lines"
 
 
-@register(PLUGIN_ID, "ahuai", "自动删除机器人回复中的空行", "1.1.0")
+@register(PLUGIN_ID, "ahuai", "自动删除机器人回复中的空行", "1.1.1")
 class RemoveBlankLinesPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig | None = None):
         super().__init__(context)
@@ -27,17 +27,56 @@ class RemoveBlankLinesPlugin(Star):
         if not self._should_process_event(event):
             return
 
-        max_newlines = self._config_get("max_consecutive_newlines", DEFAULT_MAX_CONSECUTIVE_NEWLINES)
+        max_newlines = self._config_get(
+            "max_consecutive_newlines", DEFAULT_MAX_CONSECUTIVE_NEWLINES
+        )
         for component in result.chain:
             if isinstance(component, Comp.Plain):
                 component.text = collapse_blank_lines(component.text, max_newlines)
+
+    @filter.on_using_llm_tool(priority=-100)
+    async def remove_tool_message_blank_lines(
+        self,
+        event: AstrMessageEvent,
+        tool: Any,
+        tool_args: dict | None,
+    ) -> None:
+        """Normalize text before the built-in send tool constructs its message chain.
+
+        Args:
+            event: Message event used by the plugin's existing exclusion rules.
+            tool: Function tool about to run.
+            tool_args: Tool arguments whose plain text components are updated in place.
+        """
+        if getattr(tool, "name", None) != "send_message_to_user":
+            return
+        if not isinstance(tool_args, dict) or not self._should_process_event(event):
+            return
+
+        messages = tool_args.get("messages")
+        if not isinstance(messages, list):
+            return
+
+        max_newlines = self._config_get(
+            "max_consecutive_newlines", DEFAULT_MAX_CONSECUTIVE_NEWLINES
+        )
+        for message in messages:
+            if not isinstance(message, dict):
+                continue
+            if str(message.get("type", "")).lower() != "plain":
+                continue
+            text = message.get("text")
+            if isinstance(text, str):
+                message["text"] = collapse_blank_lines(text, max_newlines)
 
     def _should_process_event(self, event: AstrMessageEvent) -> bool:
         event_text = self._collect_event_metadata_text(event)
         if self._is_blacklisted(event_text):
             return False
 
-        return self._is_global_mode_enabled() or not self._looks_like_plugin_output(event_text)
+        return self._is_global_mode_enabled() or not self._looks_like_plugin_output(
+            event_text
+        )
 
     def _is_global_mode_enabled(self) -> bool:
         return bool(self._config_get("apply_to_llm_output_globally", True))
